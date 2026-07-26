@@ -19,6 +19,10 @@ React 18 + Vite 5 + TypeScript, plain CSS (no UI framework). Backend:
 - Pages in `src/pages/`, shared types in `src/types.ts` (Role union must stay in sync
   with the backend Role enum). User = firstName/lastName/username/email/role; login
   sends `{identifier, password}` where identifier is username or email.
+- Role labels/order live in `src/roles.ts` (`ROLE_LABELS`, `ALL_ROLES`) — import them
+  rather than re-declaring label maps per page.
+- Admin-only pages gate on `user.role === 'ADMIN'` and `<Navigate to="/" replace />`
+  otherwise; the backend enforces it independently with 403.
 
 ## Conventions
 

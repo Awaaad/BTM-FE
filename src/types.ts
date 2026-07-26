@@ -17,6 +17,12 @@ export interface User {
   role: Role
 }
 
+/** Full member record returned by the admin user-management endpoints. */
+export interface Member extends User {
+  enabled: boolean
+  createdAt: string
+}
+
 export interface AuthResponse {
   accessToken: string
   refreshToken: string

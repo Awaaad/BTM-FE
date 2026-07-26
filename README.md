@@ -36,6 +36,7 @@ Production build: `npm run build` (type-checks with `tsc`, outputs to `dist/`).
 |-------------|-----------|------|
 | `/login`    | public    | Sign in with **username or email** |
 | `/register` | public    | Create account: first/last name, unique username, unique email (always a MEMBER; roles assigned by admins later) |
-| `/`         | protected | Dashboard (placeholder cards for members, beneficiaries, minutes, allocations, deliveries) |
+| `/`         | protected | Dashboard (Members card links through for admins; other cards are placeholders) |
+| `/members`  | admin     | Member table: assign committee roles, enable/disable accounts (redirects non-admins home) |
 
 Seeded admin for testing: `admin` (or `admin@btm.local`) / `admin123`.

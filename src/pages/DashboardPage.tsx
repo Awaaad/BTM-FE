@@ -1,16 +1,6 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'Administrator',
-  PRESIDENT: 'President',
-  VICE_PRESIDENT: 'Vice President',
-  SECRETARY: 'Secretary',
-  ASSISTANT_SECRETARY: 'Assistant Secretary',
-  TREASURER: 'Treasurer',
-  ASSISTANT_TREASURER: 'Assistant Treasurer',
-  MEMBER: 'Member',
-}
+import { ROLE_LABELS } from '../roles'
 
 export default function DashboardPage() {
   const { user, logout } = useAuth()
@@ -45,10 +35,17 @@ export default function DashboardPage() {
         </p>
 
         <div className="card-grid">
-          <div className="card feature-card">
-            <h3>Members</h3>
-            <p className="muted">Committee roles &amp; membership — coming soon.</p>
-          </div>
+          {user.role === 'ADMIN' ? (
+            <Link to="/members" className="card feature-card card-link">
+              <h3>Members</h3>
+              <p className="muted">Assign committee roles, enable or disable accounts.</p>
+            </Link>
+          ) : (
+            <div className="card feature-card">
+              <h3>Members</h3>
+              <p className="muted">Committee roles &amp; membership.</p>
+            </div>
+          )}
           <div className="card feature-card">
             <h3>Beneficiaries</h3>
             <p className="muted">Beneficiary registry — coming soon.</p>
