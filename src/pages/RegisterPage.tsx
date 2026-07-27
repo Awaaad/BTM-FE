@@ -45,10 +45,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="page-center">
+    <div className="auth-page">
+      <div className="auth-brand">
+        <span className="logo">BTM</span>
+        <span>Management&nbsp;System</span>
+      </div>
+
       <div className="card auth-card">
-        <h1 className="brand">BTM</h1>
-        <h2>Create your account</h2>
+        <h1>Create your account</h1>
+        <p className="muted">New accounts join as members.</p>
 
         {error && <div className="alert">{error}</div>}
 
@@ -106,37 +111,41 @@ export default function RegisterPage() {
             {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
           </label>
 
-          <label>
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              required
-              minLength={8}
-            />
-            {fieldErrors.password && <span className="field-error">{fieldErrors.password}</span>}
-          </label>
+          <div className="field-row">
+            <label>
+              Password
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                required
+                minLength={8}
+              />
+              {fieldErrors.password && <span className="field-error">{fieldErrors.password}</span>}
+            </label>
 
-          <label>
-            Confirm password
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-              required
-            />
-            {fieldErrors.confirmPassword && <span className="field-error">{fieldErrors.confirmPassword}</span>}
-          </label>
+            <label>
+              Confirm password
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                required
+              />
+              {fieldErrors.confirmPassword && (
+                <span className="field-error">{fieldErrors.confirmPassword}</span>
+              )}
+            </label>
+          </div>
 
           <button type="submit" disabled={submitting}>
             {submitting ? 'Creating account…' : 'Register'}
           </button>
         </form>
 
-        <p className="muted">
+        <p className="auth-foot muted">
           Already have an account? <Link to="/login">Sign in</Link>
         </p>
       </div>

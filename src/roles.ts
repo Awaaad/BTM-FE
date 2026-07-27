@@ -19,6 +19,15 @@ export function canManageRecords(role: Role | undefined): boolean {
   return role !== undefined && role !== 'MEMBER'
 }
 
+/**
+ * Who may change another person's committee role or account access.
+ * Mirrors Authz.LEADERSHIP on the backend. Everyone else sees the
+ * member directory read-only.
+ */
+export function canManageMembers(role: Role | undefined): boolean {
+  return role === 'ADMIN' || role === 'PRESIDENT' || role === 'VICE_PRESIDENT'
+}
+
 /** Every role an admin can assign, in display order. */
 export const ALL_ROLES: Role[] = [
   'ADMIN',

@@ -7,7 +7,7 @@ export default function ProtectedRoute() {
 
   if (initializing) {
     return (
-      <div className="page-center">
+      <div className="center-note">
         <p className="muted">Loading…</p>
       </div>
     )

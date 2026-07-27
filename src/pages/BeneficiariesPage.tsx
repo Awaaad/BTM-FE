@@ -4,10 +4,17 @@ import { useAuth } from '../auth/AuthContext'
 import { ApiRequestError } from '../api/client'
 import * as api from '../api/beneficiaries'
 import { canManageRecords } from '../roles'
-import PageShell from '../components/PageShell'
+import AppLayout from '../components/AppLayout'
+import Icon from '../components/Icon'
 import type { Beneficiary, BeneficiaryInput, BeneficiaryStatus } from '../types'
 
 type StatusFilter = BeneficiaryStatus | 'ALL'
+
+const FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'ARCHIVED', label: 'Archived' },
+  { value: 'ALL', label: 'All' },
+]
 
 const EMPTY_FORM: BeneficiaryInput = {
   firstName: '',
@@ -31,13 +38,13 @@ export default function BeneficiariesPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ACTIVE')
 
-  /** null = form closed; otherwise the record being edited (id 0 = new). */
   const [editing, setEditing] = useState<Beneficiary | null>(null)
   const [creating, setCreating] = useState(false)
   const [form, setForm] = useState<BeneficiaryInput>(EMPTY_FORM)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
   const inFlight = useRef(false)
+  const formRef = useRef<HTMLDivElement>(null)
 
   const load = useCallback(async () => {
     setError(null)
@@ -63,22 +70,16 @@ export default function BeneficiariesPage() {
     setCreating(true)
     setForm(EMPTY_FORM)
     setFieldErrors({})
+    // On a phone the form renders above the fold but below the filters.
+    requestAnimationFrame(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }
 
   function openEdit(beneficiary: Beneficiary) {
     setCreating(false)
     setEditing(beneficiary)
     setFieldErrors({})
-    setForm({
-      firstName: beneficiary.firstName,
-      lastName: beneficiary.lastName,
-      phone: beneficiary.phone ?? '',
-      email: beneficiary.email ?? '',
-      address: beneficiary.address ?? '',
-      householdSize: beneficiary.householdSize,
-      notes: beneficiary.notes ?? '',
-      status: beneficiary.status,
-    })
+    setForm(toInput(beneficiary))
+    requestAnimationFrame(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }
 
   function closeForm() {
@@ -121,13 +122,7 @@ export default function BeneficiariesPage() {
     setError(null)
     try {
       await api.updateBeneficiary(beneficiary.id, {
-        firstName: beneficiary.firstName,
-        lastName: beneficiary.lastName,
-        phone: beneficiary.phone ?? '',
-        email: beneficiary.email ?? '',
-        address: beneficiary.address ?? '',
-        householdSize: beneficiary.householdSize,
-        notes: beneficiary.notes ?? '',
+        ...toInput(beneficiary),
         status: beneficiary.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE',
       })
       await load()
@@ -159,18 +154,30 @@ export default function BeneficiariesPage() {
   const formOpen = creating || editing !== null
 
   return (
-    <PageShell
+    <AppLayout
       title="Beneficiaries"
       subtitle="People and households the organisation supports."
       actions={
-        canManage && !formOpen ? <button onClick={openCreate}>Add beneficiary</button> : undefined
+        canManage && !formOpen ? (
+          <button className="btn" onClick={openCreate}>
+            <Icon name="plus" size={18} />
+            Add beneficiary
+          </button>
+        ) : undefined
+      }
+      fab={
+        canManage && !formOpen ? (
+          <button className="fab" onClick={openCreate} aria-label="Add beneficiary">
+            <Icon name="plus" size={24} />
+          </button>
+        ) : undefined
       }
     >
       {error && <div className="alert">{error}</div>}
 
       {formOpen && (
-        <div className="card form-card">
-          <h3>{editing ? 'Edit beneficiary' : 'New beneficiary'}</h3>
+        <div className="card form-card" ref={formRef}>
+          <h2>{editing ? 'Edit beneficiary' : 'New beneficiary'}</h2>
           <form onSubmit={handleSubmit} noValidate>
             <div className="field-row">
               <label>
@@ -201,6 +208,7 @@ export default function BeneficiariesPage() {
                 Phone
                 <input
                   type="tel"
+                  inputMode="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 />
@@ -210,6 +218,7 @@ export default function BeneficiariesPage() {
                 Email
                 <input
                   type="email"
+                  inputMode="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
@@ -232,6 +241,7 @@ export default function BeneficiariesPage() {
                 Household size
                 <input
                   type="number"
+                  inputMode="numeric"
                   min={1}
                   max={50}
                   value={form.householdSize}
@@ -246,7 +256,9 @@ export default function BeneficiariesPage() {
                   Status
                   <select
                     value={form.status}
-                    onChange={(e) => setForm({ ...form, status: e.target.value as BeneficiaryStatus })}
+                    onChange={(e) =>
+                      setForm({ ...form, status: e.target.value as BeneficiaryStatus })
+                    }
                   >
                     <option value="ACTIVE">Active</option>
                     <option value="ARCHIVED">Archived</option>
@@ -269,7 +281,7 @@ export default function BeneficiariesPage() {
               <button type="submit" disabled={saving}>
                 {saving ? 'Saving…' : editing ? 'Save changes' : 'Add beneficiary'}
               </button>
-              <button type="button" className="secondary" onClick={closeForm} disabled={saving}>
+              <button type="button" className="btn-sm" onClick={closeForm} disabled={saving}>
                 Cancel
               </button>
             </div>
@@ -278,17 +290,27 @@ export default function BeneficiariesPage() {
       )}
 
       <div className="filters">
-        <input
-          type="search"
-          placeholder="Search name, phone or email…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
-          <option value="ACTIVE">Active only</option>
-          <option value="ARCHIVED">Archived only</option>
-          <option value="ALL">All</option>
-        </select>
+        <div className="search">
+          <Icon name="search" size={18} />
+          <input
+            type="search"
+            placeholder="Search name, phone or email…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="segmented" role="group" aria-label="Filter by status">
+          {FILTERS.map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              aria-pressed={statusFilter === filter.value}
+              onClick={() => setStatusFilter(filter.value)}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -302,7 +324,7 @@ export default function BeneficiariesPage() {
           </p>
         </div>
       ) : (
-        <div className="table-wrap card">
+        <div className="table-wrap">
           <table>
             <thead>
               <tr>
@@ -311,38 +333,67 @@ export default function BeneficiariesPage() {
                 <th>Address</th>
                 <th>Household</th>
                 <th>Status</th>
-                {canManage && <th></th>}
+                {canManage && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
               {beneficiaries.map((b) => (
-                <tr key={b.id} className={b.status === 'ACTIVE' ? '' : 'row-disabled'}>
-                  <td>
+                <tr key={b.id} className={b.status === 'ACTIVE' ? '' : 'row-muted'}>
+                  <td className="cell-primary">
                     {b.firstName} {b.lastName}
-                    {b.notes && <div className="cell-note">{b.notes}</div>}
+                    {b.notes && <span className="cell-note">{b.notes}</span>}
                   </td>
-                  <td>
-                    {b.phone && <div>{b.phone}</div>}
-                    {b.email && <div>{b.email}</div>}
-                    {!b.phone && !b.email && <span className="muted">—</span>}
+                  <td data-label="Contact">
+                    {b.phone || b.email ? (
+                      <span className="stack-lines">
+                        {b.phone && (
+                          <span className="contact-line">
+                            <Icon name="phone" size={14} />
+                            {b.phone}
+                          </span>
+                        )}
+                        {b.email && (
+                          <span className="contact-line">
+                            <Icon name="mail" size={14} />
+                            {b.email}
+                          </span>
+                        )}
+                      </span>
+                    ) : (
+                      <span className="muted">—</span>
+                    )}
                   </td>
-                  <td>{b.address ?? <span className="muted">—</span>}</td>
-                  <td className="nowrap">{b.householdSize}</td>
-                  <td className="nowrap">
-                    <span className={b.status === 'ACTIVE' ? 'status-badge on' : 'status-badge off'}>
+                  <td data-label="Address">
+                    {b.address ? (
+                      <span className="contact-line">
+                        <Icon name="pin" size={14} />
+                        {b.address}
+                      </span>
+                    ) : (
+                      <span className="muted">—</span>
+                    )}
+                  </td>
+                  <td data-label="Household" className="nowrap">
+                    {b.householdSize}
+                  </td>
+                  <td data-label="Status" className="nowrap">
+                    <span className={b.status === 'ACTIVE' ? 'badge on' : 'badge off'}>
                       {b.status === 'ACTIVE' ? 'Active' : 'Archived'}
                     </span>
                   </td>
                   {canManage && (
-                    <td className="nowrap row-actions">
-                      <button className="secondary" onClick={() => openEdit(b)}>
+                    <td className="cell-actions">
+                      <button className="btn-sm" onClick={() => openEdit(b)}>
+                        <Icon name="edit" size={16} />
                         Edit
                       </button>
-                      <button className="secondary" onClick={() => toggleArchive(b)}>
+                      <button className="btn-sm" onClick={() => toggleArchive(b)}>
+                        <Icon name={b.status === 'ACTIVE' ? 'archive' : 'restore'} size={16} />
                         {b.status === 'ACTIVE' ? 'Archive' : 'Restore'}
                       </button>
                       {isAdmin && (
-                        <button className="secondary danger" onClick={() => handleDelete(b)}>
+                        <button className="btn-sm danger" onClick={() => handleDelete(b)}>
+                          <Icon name="trash" size={16} />
                           Delete
                         </button>
                       )}
@@ -354,6 +405,19 @@ export default function BeneficiariesPage() {
           </table>
         </div>
       )}
-    </PageShell>
+    </AppLayout>
   )
+}
+
+function toInput(beneficiary: Beneficiary): BeneficiaryInput {
+  return {
+    firstName: beneficiary.firstName,
+    lastName: beneficiary.lastName,
+    phone: beneficiary.phone ?? '',
+    email: beneficiary.email ?? '',
+    address: beneficiary.address ?? '',
+    householdSize: beneficiary.householdSize,
+    notes: beneficiary.notes ?? '',
+    status: beneficiary.status,
+  }
 }

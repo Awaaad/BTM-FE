@@ -30,10 +30,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="page-center">
+    <div className="auth-page">
+      <div className="auth-brand">
+        <span className="logo">BTM</span>
+        <span>Management&nbsp;System</span>
+      </div>
+
       <div className="card auth-card">
-        <h1 className="brand">BTM</h1>
-        <h2>Sign in</h2>
+        <h1>Sign in</h1>
+        <p className="muted">Use your username or email address.</p>
 
         {error && <div className="alert">{error}</div>}
 
@@ -66,7 +71,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="muted">
+        <p className="auth-foot muted">
           No account yet? <Link to="/register">Register</Link>
         </p>
       </div>
