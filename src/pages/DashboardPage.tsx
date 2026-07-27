@@ -1,69 +1,57 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { ROLE_LABELS } from '../roles'
+import PageShell from '../components/PageShell'
+
+interface Feature {
+  title: string
+  description: string
+  to?: string
+  adminOnly?: boolean
+}
+
+const FEATURES: Feature[] = [
+  {
+    title: 'Members',
+    description: 'Assign committee roles, enable or disable accounts.',
+    to: '/members',
+    adminOnly: true,
+  },
+  {
+    title: 'Beneficiaries',
+    description: 'People and households the organisation supports.',
+    to: '/beneficiaries',
+  },
+  { title: 'Meeting minutes', description: 'Record what was discussed — coming soon.' },
+  { title: 'Allocations', description: 'Provisions & funds for beneficiaries — coming soon.' },
+  { title: 'Deliveries', description: 'Monthly delivery assignments — coming soon.' },
+]
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth()
 
   if (!user) return null
 
-  async function handleLogout() {
-    await logout()
-    navigate('/login', { replace: true })
-  }
-
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <span className="brand">BTM Management System</span>
-        <div className="topbar-user">
-          <span>
-            {user.firstName} {user.lastName}{' '}
-            <span className="role-badge">{ROLE_LABELS[user.role] ?? user.role}</span>
-          </span>
-          <button className="secondary" onClick={handleLogout}>
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <main className="content">
-        <h2>Welcome, {user.firstName}!</h2>
-        <p className="muted">
-          You are signed in as <strong>{user.username}</strong> ({user.email}).
-        </p>
-
-        <div className="card-grid">
-          {user.role === 'ADMIN' ? (
-            <Link to="/members" className="card feature-card card-link">
-              <h3>Members</h3>
-              <p className="muted">Assign committee roles, enable or disable accounts.</p>
+    <PageShell
+      title={`Welcome, ${user.firstName}!`}
+      subtitle={`You are signed in as ${user.username} (${user.email}).`}
+    >
+      <div className="card-grid">
+        {FEATURES.map((feature) => {
+          const available = feature.to && (!feature.adminOnly || user.role === 'ADMIN')
+          return available ? (
+            <Link key={feature.title} to={feature.to!} className="card feature-card card-link">
+              <h3>{feature.title}</h3>
+              <p className="muted">{feature.description}</p>
             </Link>
           ) : (
-            <div className="card feature-card">
-              <h3>Members</h3>
-              <p className="muted">Committee roles &amp; membership.</p>
+            <div key={feature.title} className="card feature-card">
+              <h3>{feature.title}</h3>
+              <p className="muted">{feature.description}</p>
             </div>
-          )}
-          <div className="card feature-card">
-            <h3>Beneficiaries</h3>
-            <p className="muted">Beneficiary registry — coming soon.</p>
-          </div>
-          <div className="card feature-card">
-            <h3>Meeting minutes</h3>
-            <p className="muted">Record what was discussed — coming soon.</p>
-          </div>
-          <div className="card feature-card">
-            <h3>Allocations</h3>
-            <p className="muted">Provisions &amp; funds for beneficiaries — coming soon.</p>
-          </div>
-          <div className="card feature-card">
-            <h3>Deliveries</h3>
-            <p className="muted">Monthly delivery assignments — coming soon.</p>
-          </div>
-        </div>
-      </main>
-    </div>
+          )
+        })}
+      </div>
+    </PageShell>
   )
 }

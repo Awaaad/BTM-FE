@@ -11,6 +11,14 @@ export const ROLE_LABELS: Record<Role, string> = {
   MEMBER: 'Member',
 }
 
+/**
+ * Committee positions (and admins) maintain the organisation's records.
+ * Mirrors Authz.COMMITTEE on the backend, which enforces this for real.
+ */
+export function canManageRecords(role: Role | undefined): boolean {
+  return role !== undefined && role !== 'MEMBER'
+}
+
 /** Every role an admin can assign, in display order. */
 export const ALL_ROLES: Role[] = [
   'ADMIN',

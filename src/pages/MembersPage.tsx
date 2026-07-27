@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { ApiRequestError } from '../api/client'
 import * as usersApi from '../api/users'
 import { ALL_ROLES, ROLE_LABELS } from '../roles'
+import PageShell from '../components/PageShell'
 import type { Member, Role } from '../types'
 
 export default function MembersPage() {
@@ -70,21 +71,12 @@ export default function MembersPage() {
   }
 
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <span className="brand">BTM Management System</span>
-        <Link to="/">Back to dashboard</Link>
-      </header>
+    <PageShell title="Members" subtitle="Assign committee roles and manage account access.">
+      {error && <div className="alert">{error}</div>}
 
-      <main className="content">
-        <h2>Members</h2>
-        <p className="muted">Assign committee roles and manage account access.</p>
-
-        {error && <div className="alert">{error}</div>}
-
-        {loading ? (
-          <p className="muted">Loading…</p>
-        ) : (
+      {loading ? (
+        <p className="muted">Loading…</p>
+      ) : (
           <div className="table-wrap card">
             <table>
               <thead>
@@ -147,7 +139,6 @@ export default function MembersPage() {
             </table>
           </div>
         )}
-      </main>
-    </div>
+    </PageShell>
   )
 }

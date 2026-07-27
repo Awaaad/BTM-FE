@@ -23,6 +23,12 @@ React 18 + Vite 5 + TypeScript, plain CSS (no UI framework). Backend:
   rather than re-declaring label maps per page.
 - Admin-only pages gate on `user.role === 'ADMIN'` and `<Navigate to="/" replace />`
   otherwise; the backend enforces it independently with 403.
+- Signed-in pages wrap their content in `components/PageShell` (top bar, user chip,
+  sign out, title/subtitle/actions row) — don't hand-roll another topbar.
+- `canManageRecords(role)` in `src/roles.ts` hides write controls from plain MEMBERs,
+  mirroring `Authz.COMMITTEE` on the backend.
+- Mutation handlers guard re-entry with a `useRef` flag (state updates are async, so a
+  fast double-click would otherwise fire two requests — this caused a real double-toggle bug).
 
 ## Conventions
 
