@@ -17,7 +17,15 @@ React 18 + Vite 5 + TypeScript, plain CSS (no UI framework). Backend:
   cell `.cell-primary` and the button cell `.cell-actions`.
 - Tap targets are `--tap` (44px); inputs stay at 16px font so iOS doesn't zoom on focus.
 - Icons come from `components/Icon` (inline SVG, `currentColor`) — no icon package.
-- Primary page action: `actions` prop on desktop, `fab` prop on mobile (see Beneficiaries).
+- Primary page action: green button via the `actions` prop on desktop, `fab` prop on mobile
+  (see Beneficiaries). Every add/save action sits on the right; `.form-actions` uses
+  `row-reverse` so the primary button lands on the far right.
+- Dates and times use `components/DateTimeField` (`DateField`/`TimeField`): a plain text
+  input you can type into (day-first, plus forgiving formats — see `dateInput.ts`) with the
+  native picker behind a button. Don't drop raw `<input type="date">` into a form.
+- `components/NotesPanel` is shared by the Notes page and the meeting detail page. It
+  exposes `startNewNote()` through a ref so a page can drive it from its header button/FAB
+  (`externalTrigger` + `onFormOpenChange`).
 
 ## Commands
 

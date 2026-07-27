@@ -39,5 +39,9 @@ Production build: `npm run build` (type-checks with `tsc`, outputs to `dist/`).
 | `/`         | protected | Dashboard (Members card links through for admins; other cards are placeholders) |
 | `/members`  | protected | Member directory — everyone can view; admin/president/vice president get the role dropdown and enable/disable buttons; admins also get Edit (name, username, email, optional password reset) |
 | `/beneficiaries` | protected | Registry with search + status filter; committee members can add/edit/archive, admins can delete |
+| `/minutes`  | protected | Meeting list with search, a date picker and status filter; committee members record and edit minutes |
+| `/minutes/:id` | protected | Full minutes, plus your own private notes for that meeting |
+| `/notes`    | protected | Your private notes, searchable and filterable by date |
+| `/profile`  | protected | Your own details and password (reached from the user menu) |
 
 Seeded admin for testing: `admin` (or `admin@btm.local`) / `admin123`.

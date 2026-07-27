@@ -8,8 +8,17 @@ export interface MemberDetailsInput {
   email: string
 }
 
+export interface CreateMemberInput extends MemberDetailsInput {
+  password: string
+  role: Role
+}
+
 export function listMembers(): Promise<Member[]> {
   return apiFetch<Member[]>('/api/users')
+}
+
+export function createMember(input: CreateMemberInput): Promise<Member> {
+  return apiFetch<Member>('/api/users', { method: 'POST', body: JSON.stringify(input) })
 }
 
 export function updateMember(userId: number, details: MemberDetailsInput): Promise<Member> {

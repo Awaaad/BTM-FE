@@ -13,8 +13,19 @@ interface EditForm {
   lastName: string
   username: string
   email: string
-  /** Blank keeps the current password. */
+  /** When editing, blank keeps the current password. Required when creating. */
   newPassword: string
+  /** Only used when creating. */
+  role: Role
+}
+
+const BLANK_FORM: EditForm = {
+  firstName: '',
+  lastName: '',
+  username: '',
+  email: '',
+  newPassword: '',
+  role: 'MEMBER',
 }
 
 export default function MembersPage() {
@@ -30,6 +41,7 @@ export default function MembersPage() {
   const [busyId, setBusyId] = useState<number | null>(null)
 
   const [editing, setEditing] = useState<Member | null>(null)
+  const [creating, setCreating] = useState(false)
   const [form, setForm] = useState<EditForm | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
@@ -61,7 +73,24 @@ export default function MembersPage() {
     setMembers((current) => current.map((m) => (m.id === updated.id ? updated : m)))
   }
 
+  function scrollToForm() {
+    requestAnimationFrame(() =>
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    )
+  }
+
+  function openCreate() {
+    setEditing(null)
+    setCreating(true)
+    setFieldErrors({})
+    setError(null)
+    setNotice(null)
+    setForm({ ...BLANK_FORM })
+    scrollToForm()
+  }
+
   function openEdit(member: Member) {
+    setCreating(false)
     setEditing(member)
     setFieldErrors({})
     setError(null)
@@ -72,21 +101,59 @@ export default function MembersPage() {
       username: member.username,
       email: member.email,
       newPassword: '',
+      role: member.role,
     })
-    requestAnimationFrame(() =>
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-    )
+    scrollToForm()
   }
 
   function closeEdit() {
     setEditing(null)
+    setCreating(false)
     setForm(null)
     setFieldErrors({})
   }
 
+  async function handleCreate(form: EditForm) {
+    const created = await usersApi.createMember({
+      firstName: form.firstName,
+      lastName: form.lastName,
+      username: form.username,
+      email: form.email,
+      password: form.newPassword,
+      role: form.role,
+    })
+    setMembers((current) => [...current, created])
+    closeEdit()
+    setNotice(`${created.firstName} ${created.lastName} can now sign in as ${created.username}.`)
+  }
+
   async function handleSave(event: FormEvent) {
     event.preventDefault()
-    if (!editing || !form || inFlight.current) return
+    if (!form || inFlight.current) return
+
+    if (creating) {
+      inFlight.current = true
+      setSaving(true)
+      setError(null)
+      setNotice(null)
+      setFieldErrors({})
+      try {
+        await handleCreate(form)
+      } catch (err) {
+        if (err instanceof ApiRequestError) {
+          setError(err.message)
+          setFieldErrors(err.errors ?? {})
+        } else {
+          setError('Failed to add the member')
+        }
+      } finally {
+        inFlight.current = false
+        setSaving(false)
+      }
+      return
+    }
+
+    if (!editing) return
     inFlight.current = true
     setSaving(true)
     setError(null)
@@ -166,6 +233,8 @@ export default function MembersPage() {
     }
   }
 
+  const formOpen = creating || editing !== null
+
   return (
     <AppLayout
       title="Members"
@@ -174,15 +243,28 @@ export default function MembersPage() {
           ? 'Assign committee roles and manage account access.'
           : 'Directory of everyone in the organisation.'
       }
+      actions={
+        isAdmin && !formOpen ? (
+          <button className="btn" onClick={openCreate}>
+            <Icon name="plus" size={18} />
+            Add member
+          </button>
+        ) : undefined
+      }
+      fab={
+        isAdmin && !formOpen ? (
+          <button className="fab" onClick={openCreate} aria-label="Add member">
+            <Icon name="plus" size={24} />
+          </button>
+        ) : undefined
+      }
     >
       {error && <div className="alert">{error}</div>}
       {notice && <div className="notice">{notice}</div>}
 
-      {editing && form && (
+      {form && (creating || editing) && (
         <div className="card form-card" ref={formRef}>
-          <h2>
-            Edit {editing.firstName} {editing.lastName}
-          </h2>
+          <h2>{creating ? 'Add a member' : `Edit ${editing?.firstName} ${editing?.lastName}`}</h2>
           <form onSubmit={handleSave} noValidate>
             <div className="field-row">
               <label>
@@ -231,26 +313,50 @@ export default function MembersPage() {
               </label>
             </div>
 
-            <label>
-              New password
-              <input
-                type="password"
-                value={form.newPassword}
-                onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
-                autoComplete="new-password"
-                placeholder="Leave blank to keep the current password"
-              />
-              <span className="hint">
-                Setting a password signs the member out of any device they are using.
-              </span>
-              {fieldErrors.newPassword && (
-                <span className="field-error">{fieldErrors.newPassword}</span>
+            <div className="field-row">
+              <label>
+                {creating ? 'Password' : 'New password'}
+                <input
+                  type="password"
+                  value={form.newPassword}
+                  onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
+                  autoComplete="new-password"
+                  minLength={8}
+                  required={creating}
+                  placeholder={creating ? '' : 'Leave blank to keep the current password'}
+                />
+                <span className="hint">
+                  {creating
+                    ? 'Share this with them; they can change it from their profile.'
+                    : 'Setting a password signs the member out of any device they are using.'}
+                </span>
+                {(fieldErrors.newPassword || fieldErrors.password) && (
+                  <span className="field-error">
+                    {fieldErrors.newPassword ?? fieldErrors.password}
+                  </span>
+                )}
+              </label>
+
+              {creating && (
+                <label>
+                  Role
+                  <select
+                    value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
+                  >
+                    {ALL_ROLES.map((role) => (
+                      <option key={role} value={role}>
+                        {ROLE_LABELS[role]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               )}
-            </label>
+            </div>
 
             <div className="form-actions">
               <button type="submit" disabled={saving}>
-                {saving ? 'Saving…' : 'Save changes'}
+                {saving ? 'Saving…' : creating ? 'Add member' : 'Save changes'}
               </button>
               <button type="button" className="btn-sm" onClick={closeEdit} disabled={saving}>
                 Cancel

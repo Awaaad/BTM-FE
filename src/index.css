@@ -658,16 +658,16 @@ form {
   min-width: 0;
 }
 
+/*
+ * Right-aligned like every other action in the app. row-reverse keeps the
+ * primary button first in the DOM while placing it on the far right.
+ */
 .form-actions {
   display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
   gap: 0.6rem;
   flex-wrap: wrap;
-}
-
-.form-actions .btn,
-.form-actions button {
-  flex: 1;
-  min-width: 130px;
 }
 
 /* ============================================================
@@ -766,6 +766,22 @@ form {
   background: var(--surface);
 }
 
+/* Date filter sitting in the toolbar next to the search box. */
+.filter-date {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.filter-date > label {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-date input[type='text'] {
+  border-radius: 999px;
+}
+
 .segmented {
   display: flex;
   gap: 3px;
@@ -858,9 +874,10 @@ tbody td.cell-primary::before {
   display: none;
 }
 
+/* Right-aligned so the buttons sit under the thumb on a phone. */
 tbody td.cell-actions {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 0.4rem;
   padding: 0.6rem 0.95rem 0.7rem;
@@ -903,6 +920,306 @@ tbody tr.row-muted {
 }
 
 /* ============================================================
+   Meetings
+   ============================================================ */
+
+.meeting-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.meeting-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+}
+
+.meeting-title {
+  display: block;
+  font-size: 1.02rem;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.meeting-title:hover {
+  color: var(--primary);
+}
+
+.meeting-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.meeting-summary {
+  margin: 0.5rem 0 0;
+  color: var(--text);
+  font-size: 0.89rem;
+  line-height: 1.5;
+  /* Two lines is enough to recognise a meeting without crowding the card. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Badges and actions hug the right edge, matching the table rows. */
+.meeting-side {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.meeting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Typed date & time fields */
+
+.picker-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.picker-field input[type='text'] {
+  padding-right: 2.9rem;
+}
+
+.picker-btn {
+  position: absolute;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.picker-btn:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* Present for showPicker(), but never seen: it anchors the native popup. */
+.native-picker {
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.field-invalid input[type='text'] {
+  border-color: var(--danger);
+}
+
+/* Attendee picker */
+
+.picker {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem 0.9rem;
+  margin: 0;
+}
+
+.picker legend {
+  padding: 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: var(--fw-bold);
+}
+
+.picker-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.15rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--tap);
+  padding: 0 0.35rem;
+  border-radius: 10px;
+  font-weight: 400;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.check:hover {
+  background: var(--primary-soft);
+}
+
+.check input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  flex: 0 0 20px;
+  accent-color: var(--primary);
+  margin: 0;
+}
+
+/* Minutes document */
+
+.minutes-doc {
+  display: grid;
+  gap: 1.35rem;
+  padding: 1.1rem;
+}
+
+.minutes-head {
+  display: grid;
+  gap: 0.6rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.minutes-head .meeting-meta {
+  margin: 0;
+}
+
+.minutes-doc section {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.minutes-doc h3 {
+  color: var(--primary);
+  font-size: 0.78rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Preserves the line breaks the secretary typed. */
+.prose {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.minutes-foot {
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+
+/* ============================================================
+   Profile & notes
+   ============================================================ */
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.profile-head h2 {
+  margin-bottom: 0.1rem;
+}
+
+.profile-head p {
+  margin-bottom: 0.4rem;
+}
+
+.avatar.lg {
+  width: 56px;
+  height: 56px;
+  flex-basis: 56px;
+  font-size: 1.1rem;
+  background: var(--primary);
+}
+
+.notes-section {
+  margin-top: 1rem;
+}
+
+.notes-section > .muted {
+  margin-bottom: 0.9rem;
+}
+
+.notes-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+/* Matches the primary action on every other page: green, on the right. */
+.add-note {
+  justify-self: end;
+}
+
+.note-form {
+  display: grid;
+  gap: 0.85rem;
+  background: var(--bg);
+  box-shadow: none;
+}
+
+.note-list {
+  display: grid;
+  gap: 0.7rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.note-item {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.9rem 1rem;
+}
+
+.note-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.note-head .meeting-meta {
+  margin-top: 0.15rem;
+}
+
+.note-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+/* ============================================================
    Badges & feedback
    ============================================================ */
 
@@ -929,6 +1246,11 @@ tbody tr.row-muted {
 .badge.off {
   background: var(--danger-bg);
   color: var(--danger);
+}
+
+.badge.draft {
+  background: #fdf3e3;
+  color: #8a5a11;
 }
 
 .alert {
@@ -1037,13 +1359,35 @@ tbody tr.row-muted {
   }
 
   .filters {
-    grid-template-columns: 1fr auto;
-    align-items: center;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    grid-template-columns: 1fr;
+    /* Bottom-align so the labelled date field lines up with the unlabelled ones. */
+    align-items: end;
   }
 
-  .form-actions .btn,
-  .form-actions button {
-    flex: 0 0 auto;
+  .filter-date {
+    min-width: 210px;
+  }
+
+  .picker-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.15rem 1rem;
+  }
+
+  /* Title/meta on the left, badges on the right, actions underneath. */
+  .meeting-card {
+    grid-template-columns: 1fr auto;
+    align-items: start;
+  }
+
+  .meeting-actions {
+    grid-column: 1 / -1;
+  }
+
+  .minutes-head {
+    grid-template-columns: 1fr auto;
+    align-items: center;
   }
 }
 
@@ -1158,6 +1502,11 @@ tbody tr.row-muted {
     font-size: 0.92rem;
     font-weight: var(--fw-bold);
     padding: 0.7rem 1rem;
+  }
+
+  tbody td.cell-actions,
+  thead th:last-child {
+    text-align: right;
   }
 
   tbody td.cell-actions {

@@ -6,6 +6,10 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import MembersPage from './pages/MembersPage'
 import BeneficiariesPage from './pages/BeneficiariesPage'
+import MinutesPage from './pages/MinutesPage'
+import MeetingDetailPage from './pages/MeetingDetailPage'
+import NotesPage from './pages/NotesPage'
+import ProfilePage from './pages/ProfilePage'
 
 export default function App() {
   return (
@@ -18,6 +22,10 @@ export default function App() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/members" element={<MembersPage />} />
             <Route path="/beneficiaries" element={<BeneficiariesPage />} />
+            <Route path="/minutes" element={<MinutesPage />} />
+            <Route path="/minutes/:id" element={<MeetingDetailPage />} />
+            <Route path="/notes" element={<NotesPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

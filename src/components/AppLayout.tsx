@@ -16,7 +16,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/', icon: 'home' },
   { label: 'Members', to: '/members', icon: 'users' },
   { label: 'Beneficiaries', to: '/beneficiaries', icon: 'heart' },
-  { label: 'Meeting minutes', icon: 'notes' },
+  { label: 'Meeting minutes', to: '/minutes', icon: 'notes' },
+  { label: 'My notes', to: '/notes', icon: 'edit' },
   { label: 'Allocations', icon: 'wallet' },
   { label: 'Deliveries', icon: 'truck' },
 ]
@@ -24,13 +25,15 @@ const NAV_ITEMS: NavItem[] = [
 interface Props {
   title: string
   subtitle?: string
+  /** Adds an intermediate breadcrumb link, for pages nested under a section. */
+  parent?: { label: string; to: string }
   /** Desktop header action; on mobile pass the same intent through `fab`. */
   actions?: ReactNode
   fab?: ReactNode
   children: ReactNode
 }
 
-export default function AppLayout({ title, subtitle, actions, fab, children }: Props) {
+export default function AppLayout({ title, subtitle, parent, actions, fab, children }: Props) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -163,6 +166,12 @@ export default function AppLayout({ title, subtitle, actions, fab, children }: P
               <>
                 <NavLink to="/">Home</NavLink>
                 <Icon name="chevronRight" size={15} />
+                {parent && (
+                  <>
+                    <NavLink to={parent.to}>{parent.label}</NavLink>
+                    <Icon name="chevronRight" size={15} />
+                  </>
+                )}
                 <span aria-current="page">{title}</span>
               </>
             )}
@@ -202,6 +211,10 @@ export default function AppLayout({ title, subtitle, actions, fab, children }: P
                     <span>{user.username}</span>
                     <span className="badge role">{ROLE_LABELS[user.role] ?? user.role}</span>
                   </div>
+                  <NavLink to="/profile" className="menu-item" role="menuitem">
+                    <Icon name="user" size={17} />
+                    My profile
+                  </NavLink>
                   <button className="menu-item" role="menuitem" onClick={handleLogout}>
                     <Icon name="logout" size={17} />
                     Sign out

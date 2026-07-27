@@ -19,7 +19,13 @@ const FEATURES: Feature[] = [
     icon: 'heart',
     to: '/beneficiaries',
   },
-  { title: 'Meeting minutes', description: 'Record what was discussed.', icon: 'notes' },
+  {
+    title: 'Meeting minutes',
+    description: 'What was discussed and decided.',
+    icon: 'notes',
+    to: '/minutes',
+  },
+  { title: 'My notes', description: 'Private jottings, by date.', icon: 'edit', to: '/notes' },
   { title: 'Allocations', description: 'Provisions and funds.', icon: 'wallet' },
   { title: 'Deliveries', description: 'Monthly delivery duty.', icon: 'truck' },
 ]
