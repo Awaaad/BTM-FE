@@ -946,6 +946,21 @@ tbody tr.row-muted {
   font-weight: 400;
 }
 
+.hint {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+.notice {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+}
+
 .you-tag {
   font-size: 0.75rem;
   font-weight: var(--fw-bold);

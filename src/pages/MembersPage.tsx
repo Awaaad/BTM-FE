@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { FormEvent } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { ApiRequestError } from '../api/client'
 import * as usersApi from '../api/users'
@@ -7,15 +8,33 @@ import AppLayout from '../components/AppLayout'
 import Icon from '../components/Icon'
 import type { Member, Role } from '../types'
 
+interface EditForm {
+  firstName: string
+  lastName: string
+  username: string
+  email: string
+  /** Blank keeps the current password. */
+  newPassword: string
+}
+
 export default function MembersPage() {
   const { user } = useAuth()
   const canManage = canManageMembers(user?.role)
+  const isAdmin = user?.role === 'ADMIN'
 
   const [members, setMembers] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [busyId, setBusyId] = useState<number | null>(null)
+
+  const [editing, setEditing] = useState<Member | null>(null)
+  const [form, setForm] = useState<EditForm | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+  const formRef = useRef<HTMLDivElement>(null)
+
   // Synchronous guard: state updates are async, so a rapid double-click could
   // otherwise fire two requests before the disabled attribute renders.
   const inFlight = useRef(false)
@@ -40,6 +59,81 @@ export default function MembersPage() {
 
   function replaceMember(updated: Member) {
     setMembers((current) => current.map((m) => (m.id === updated.id ? updated : m)))
+  }
+
+  function openEdit(member: Member) {
+    setEditing(member)
+    setFieldErrors({})
+    setError(null)
+    setNotice(null)
+    setForm({
+      firstName: member.firstName,
+      lastName: member.lastName,
+      username: member.username,
+      email: member.email,
+      newPassword: '',
+    })
+    requestAnimationFrame(() =>
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    )
+  }
+
+  function closeEdit() {
+    setEditing(null)
+    setForm(null)
+    setFieldErrors({})
+  }
+
+  async function handleSave(event: FormEvent) {
+    event.preventDefault()
+    if (!editing || !form || inFlight.current) return
+    inFlight.current = true
+    setSaving(true)
+    setError(null)
+    setNotice(null)
+    setFieldErrors({})
+
+    const editingSelf = editing.id === user?.id
+    const usernameChanged = form.username.trim().toLowerCase() !== editing.username
+    const password = form.newPassword.trim()
+
+    try {
+      const updated = await usersApi.updateMember(editing.id, {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        username: form.username,
+        email: form.email,
+      })
+      replaceMember(updated)
+
+      if (password) {
+        await usersApi.resetPassword(editing.id, password)
+      }
+
+      closeEdit()
+      setNotice(
+        password
+          ? `Saved. ${updated.firstName} must sign in again with the new password.`
+          : usernameChanged
+            ? `Saved. ${updated.firstName} must sign in again with the new username.`
+            : 'Changes saved.',
+      )
+
+      // Changing your own username or password invalidates this session too.
+      if (editingSelf && (password || usernameChanged)) {
+        setNotice('Saved. Your own sign-in details changed — you may need to sign in again.')
+      }
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        setError(err.message)
+        setFieldErrors(err.errors ?? {})
+      } else {
+        setError('Failed to save changes')
+      }
+    } finally {
+      inFlight.current = false
+      setSaving(false)
+    }
   }
 
   async function handleRoleChange(member: Member, role: Role) {
@@ -82,6 +176,89 @@ export default function MembersPage() {
       }
     >
       {error && <div className="alert">{error}</div>}
+      {notice && <div className="notice">{notice}</div>}
+
+      {editing && form && (
+        <div className="card form-card" ref={formRef}>
+          <h2>
+            Edit {editing.firstName} {editing.lastName}
+          </h2>
+          <form onSubmit={handleSave} noValidate>
+            <div className="field-row">
+              <label>
+                First name
+                <input
+                  type="text"
+                  value={form.firstName}
+                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                  required
+                  autoFocus
+                />
+                {fieldErrors.firstName && <span className="field-error">{fieldErrors.firstName}</span>}
+              </label>
+              <label>
+                Last name
+                <input
+                  type="text"
+                  value={form.lastName}
+                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                  required
+                />
+                {fieldErrors.lastName && <span className="field-error">{fieldErrors.lastName}</span>}
+              </label>
+            </div>
+
+            <div className="field-row">
+              <label>
+                Username
+                <input
+                  type="text"
+                  value={form.username}
+                  onChange={(e) => setForm({ ...form, username: e.target.value })}
+                  required
+                />
+                {fieldErrors.username && <span className="field-error">{fieldErrors.username}</span>}
+              </label>
+              <label>
+                Email
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                />
+                {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
+              </label>
+            </div>
+
+            <label>
+              New password
+              <input
+                type="password"
+                value={form.newPassword}
+                onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
+                autoComplete="new-password"
+                placeholder="Leave blank to keep the current password"
+              />
+              <span className="hint">
+                Setting a password signs the member out of any device they are using.
+              </span>
+              {fieldErrors.newPassword && (
+                <span className="field-error">{fieldErrors.newPassword}</span>
+              )}
+            </label>
+
+            <div className="form-actions">
+              <button type="submit" disabled={saving}>
+                {saving ? 'Saving…' : 'Save changes'}
+              </button>
+              <button type="button" className="btn-sm" onClick={closeEdit} disabled={saving}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="filters">
         <div className="search">
@@ -111,7 +288,7 @@ export default function MembersPage() {
                 <th>Email</th>
                 <th>Role</th>
                 <th>Status</th>
-                {canManage && <th>Access</th>}
+                {canManage && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -151,6 +328,12 @@ export default function MembersPage() {
                     </td>
                     {canManage && (
                       <td className="cell-actions">
+                        {isAdmin && (
+                          <button className="btn-sm" onClick={() => openEdit(member)}>
+                            <Icon name="edit" size={16} />
+                            Edit
+                          </button>
+                        )}
                         {!isSelf && (
                           <button
                             className="btn-sm"
