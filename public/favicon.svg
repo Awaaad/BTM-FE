@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mosque">
+  <rect width="64" height="64" rx="13" fill="#16613a"/>
+  <g fill="#ffffff">
+    <!-- finial -->
+    <rect x="30.7" y="5.5" width="2.6" height="6" rx="1.3"/>
+    <!-- main dome -->
+    <path d="M32 11.5c6.8 5.2 10.2 9.9 10.2 14 0 .8-.1 1.6-.3 2.4H22.1a11 11 0 0 1-.3-2.4c0-4.1 3.4-8.8 10.2-14z"/>
+    <!-- prayer hall -->
+    <rect x="19" y="29.5" width="26" height="23" rx="2.5"/>
+    <!-- minarets -->
+    <rect x="9" y="28" width="6" height="24.5" rx="3"/>
+    <path d="M12 19.2c2.7 2.2 4.1 4 4.1 5.6a4.1 4.1 0 0 1-8.2 0c0-1.6 1.4-3.4 4.1-5.6z"/>
+    <rect x="49" y="28" width="6" height="24.5" rx="3"/>
+    <path d="M52 19.2c2.7 2.2 4.1 4 4.1 5.6a4.1 4.1 0 0 1-8.2 0c0-1.6 1.4-3.4 4.1-5.6z"/>
+  </g>
+  <!-- arched doorway, knocked out of the hall -->
+  <path d="M36 52.5v-8a4 4 0 0 0-8 0v8z" fill="#16613a"/>
+</svg>

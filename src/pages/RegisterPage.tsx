@@ -47,7 +47,7 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-brand">
-        <span className="logo">BTM</span>
+        <span className="logo">API&nbsp;BTM</span>
         <span>Management&nbsp;System</span>
       </div>
 

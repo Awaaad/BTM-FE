@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { ApiRequestError } from '../api/client'
+import BrandMark from '../components/BrandMark'
 
 export default function LoginPage() {
   const { login } = useAuth()
@@ -31,9 +32,12 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-brand">
-        <span className="logo">BTM</span>
-        <span>Management&nbsp;System</span>
+      <div className="auth-head">
+        <BrandMark size={76} />
+        <div className="auth-brand">
+          <span className="logo">API&nbsp;BTM</span>
+          <span>Management&nbsp;System</span>
+        </div>
       </div>
 
       <div className="card auth-card">

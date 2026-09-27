@@ -1,3 +1,4 @@
+import { apiUrl } from '../config'
 import type { ApiError, AuthResponse } from '../types'
 
 const ACCESS_TOKEN_KEY = 'btm.accessToken'
@@ -42,7 +43,7 @@ async function tryRefresh(): Promise<boolean> {
     refreshPromise = (async () => {
       const refreshToken = tokenStore.getRefreshToken()
       if (!refreshToken) return false
-      const response = await fetch('/api/auth/refresh', {
+      const response = await fetch(apiUrl('/api/auth/refresh'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
@@ -77,7 +78,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     if (accessToken) {
       headers.set('Authorization', `Bearer ${accessToken}`)
     }
-    return fetch(path, { ...options, headers })
+    return fetch(apiUrl(path), { ...options, headers })
   }
 
   let response = await doFetch()

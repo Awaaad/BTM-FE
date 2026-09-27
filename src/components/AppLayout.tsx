@@ -95,7 +95,7 @@ export default function AppLayout({ title, subtitle, parent, actions, fab, child
 
       <aside className={`sidebar ${menuOpen ? 'open' : ''}`} aria-label="Main navigation">
         <div className="sidebar-head">
-          <span className="logo">BTM</span>
+          <span className="logo">API&nbsp;BTM</span>
           <span className="sidebar-title">Management</span>
           <button
             className="icon-btn sidebar-close"

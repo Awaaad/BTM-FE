@@ -1499,6 +1499,25 @@ tbody tr.row-done {
   font-size: 1.3rem;
 }
 
+/* Emblem and wordmark sit above the card, on the green backdrop. */
+.auth-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto 1.1rem;
+  color: #fff;
+}
+
+.auth-head .auth-brand {
+  margin: 0;
+}
+
+.auth-head svg {
+  flex: 0 0 auto;
+}
+
 .auth-card > p:first-of-type {
   margin-bottom: 1.1rem;
 }
