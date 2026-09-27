@@ -26,8 +26,18 @@ const FEATURES: Feature[] = [
     to: '/minutes',
   },
   { title: 'My notes', description: 'Private jottings, by date.', icon: 'edit', to: '/notes' },
-  { title: 'Allocations', description: 'Provisions and funds.', icon: 'wallet' },
-  { title: 'Deliveries', description: 'Monthly delivery duty.', icon: 'truck' },
+  {
+    title: 'Allocations',
+    description: 'Monthly distribution to beneficiaries.',
+    icon: 'wallet',
+    to: '/allocations',
+  },
+  {
+    title: 'My deliveries',
+    description: 'What you need to hand over.',
+    icon: 'truck',
+    to: '/my-tasks',
+  },
 ]
 
 export default function DashboardPage() {

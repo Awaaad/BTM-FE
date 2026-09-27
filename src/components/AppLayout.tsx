@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 import { ROLE_LABELS } from '../roles'
 import Icon from './Icon'
 import type { IconName } from './Icon'
+import TaskBell from './TaskBell'
 
 interface NavItem {
   label: string
@@ -18,8 +19,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Beneficiaries', to: '/beneficiaries', icon: 'heart' },
   { label: 'Meeting minutes', to: '/minutes', icon: 'notes' },
   { label: 'My notes', to: '/notes', icon: 'edit' },
-  { label: 'Allocations', icon: 'wallet' },
-  { label: 'Deliveries', icon: 'truck' },
+  { label: 'Allocations', to: '/allocations', icon: 'wallet' },
+  { label: 'My deliveries', to: '/my-tasks', icon: 'truck' },
 ]
 
 interface Props {
@@ -176,6 +177,8 @@ export default function AppLayout({ title, subtitle, parent, actions, fab, child
               </>
             )}
           </nav>
+
+          {user && <TaskBell />}
 
           {user && (
             <div className="user-menu" ref={userMenuRef}>

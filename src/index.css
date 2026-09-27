@@ -1136,6 +1136,177 @@ tbody tr.row-muted {
 }
 
 /* ============================================================
+   Allocations & deliveries
+   ============================================================ */
+
+.amount-strong {
+  font-weight: var(--fw-bold);
+  color: var(--primary);
+}
+
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  overflow: hidden;
+  margin-top: 0.6rem;
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.cycle-bar {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.cycle-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+}
+
+.cycle-stats > span {
+  display: flex;
+  flex-direction: column;
+}
+
+.cycle-stats strong {
+  font-size: 1.15rem;
+  color: var(--primary);
+}
+
+.cycle-stats small {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.cycle-stats .warn strong {
+  color: var(--danger);
+}
+
+.cycle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.draft-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: -0.35rem 0 0.9rem;
+}
+
+.chip-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+/* A finished line recedes without becoming unreadable. */
+tbody tr.row-done td.cell-primary,
+.meeting-card.row-done .meeting-title {
+  text-decoration: line-through;
+  text-decoration-color: var(--muted);
+}
+
+tbody tr.row-done {
+  opacity: 0.75;
+}
+
+.btn-sm.primary-outline {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+/* Notification bell */
+
+.bell-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.icon-btn.bell {
+  position: relative;
+  color: var(--muted);
+}
+
+.icon-btn.bell:hover {
+  color: var(--primary);
+}
+
+.bell-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: var(--fw-bold);
+  line-height: 17px;
+  text-align: center;
+}
+
+.bell-menu {
+  min-width: 280px;
+}
+
+.bell-head {
+  margin-bottom: 0;
+  border-top: none;
+}
+
+.bell-empty {
+  padding: 0.75rem 0.6rem;
+  margin: 0;
+}
+
+.bell-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.bell-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.bell-item:hover {
+  background: var(--primary-soft);
+}
+
+.bell-item strong {
+  font-size: 0.89rem;
+}
+
+.bell-item small {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+/* ============================================================
    Profile & notes
    ============================================================ */
 

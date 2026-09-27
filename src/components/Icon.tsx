@@ -117,6 +117,12 @@ const PATHS: Record<string, ReactNode> = {
     </>
   ),
   chevronDown: <path d="m6 9 6 6 6-6" />,
+  bell: (
+    <>
+      <path d="M18 9a6 6 0 1 0-12 0c0 4-1.6 5.5-2 6h16c-.4-.5-2-2-2-6z" />
+      <path d="M10 19a2.2 2.2 0 0 0 4 0" />
+    </>
+  ),
   chevronRight: <path d="m9 6 6 6-6 6" />,
   user: (
     <>

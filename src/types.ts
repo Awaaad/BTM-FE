@@ -128,6 +128,65 @@ export interface NoteInput {
   meetingId?: number | null
 }
 
+export type CycleStatus = 'DRAFT' | 'PUBLISHED' | 'CLOSED'
+
+export interface Assignee {
+  id: number
+  firstName: string
+  lastName: string
+  username: string
+}
+
+/** One line of a monthly distribution. */
+export interface Allocation {
+  id: number
+  cycleId: number
+  cycleYear: number
+  cycleMonth: number
+  beneficiaryId: number
+  beneficiaryFirstName: string
+  beneficiaryLastName: string
+  beneficiaryPhone: string | null
+  beneficiaryAddress: string | null
+  amount: number | null
+  committeeDecision: string | null
+  remark: string | null
+  action: string | null
+  assignees: Assignee[]
+  delivered: boolean
+  deliveredAt: string | null
+  deliveredBy: string | null
+  deliveryNote: string | null
+  recurring: boolean
+  recurringUntil: string | null
+  position: number
+}
+
+export interface AllocationInput {
+  beneficiaryId: number
+  amount?: number | null
+  committeeDecision?: string
+  remark?: string
+  action?: string
+  assigneeIds?: number[]
+  recurring?: boolean
+  recurringUntil?: string | null
+}
+
+export interface Cycle {
+  id: number
+  year: number
+  month: number
+  status: CycleStatus
+  notes: string | null
+  itemCount: number
+  deliveredCount: number
+  unassignedCount: number
+  total: number
+  /** Only present on the detail response. */
+  items: Allocation[] | null
+}
+
 export interface ApiError {
   timestamp: string
   status: number
